@@ -3,7 +3,7 @@ main = do
   contents <- readFile "inputs/1.txt"
   let masses = map read (lines contents)
   let totalFuel = sum $ map fuel masses
-  putStrLn (show totalFuel)
+  print totalFuel
 
 fuel :: Int -> Int
 fuel mass =
