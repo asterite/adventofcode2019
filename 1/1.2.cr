@@ -6,11 +6,7 @@ puts File
   .sum
 
 def fuel(mass)
-  total = 0
-  while mass > 0
-    fuel = mass // 3 - 2
-    total += fuel if fuel > 0
-    mass = fuel
-  end
-  total
+  fuel = mass // 3 - 2
+  fuel += fuel(fuel) if fuel > 0
+  fuel
 end
