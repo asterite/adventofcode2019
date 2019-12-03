@@ -7,6 +7,9 @@ puts File
 
 def fuel(mass)
   fuel = mass // 3 - 2
-  fuel += fuel(fuel) if fuel > 0
-  fuel
+  if fuel <= 0
+    0
+  else
+    fuel + fuel(fuel)
+  end
 end

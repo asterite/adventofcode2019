@@ -8,8 +8,6 @@ main = do
 fuel :: Int -> Int
 fuel mass =
   let massFuel = (mass `div` 3) - 2
-  in
-    if massFuel <= 0 then
-      massFuel
-    else
-      massFuel + fuel massFuel
+   in if massFuel <= 0
+        then 0
+        else massFuel + fuel massFuel
