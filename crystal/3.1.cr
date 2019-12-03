@@ -2,7 +2,7 @@ wires = File
   .read("#{__DIR__}/../inputs/3.txt")
   .lines
   .map do |line|
-    line.split(",").map do |movement|
+    line.split(',').map do |movement|
       {movement[0], movement[1..].to_i}
     end
   end
