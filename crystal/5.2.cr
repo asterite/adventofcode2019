@@ -53,17 +53,11 @@ class Intcode
   end
 
   private def less_than
-    cmp { |x, y| x < y }
+    binary { |x, y| x < y ? 1 : 0 }
   end
 
   private def equals
-    cmp { |x, y| x == y }
-  end
-
-  private def cmp
-    input1 = param(0)
-    input2 = param(1)
-    @data[read] = (yield input1, input2) ? 1 : 0
+    binary { |x, y| x == y ? 1 : 0 }
   end
 
   private def binary
