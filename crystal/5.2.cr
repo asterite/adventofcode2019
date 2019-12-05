@@ -84,12 +84,8 @@ class Intcode
   end
 
   private def read_int
-    int = nil
-    until int
-      print "Enter an integer: "
-      int = gets.try &.to_i?
-    end
-    int
+    print "Enter an integer: "
+    gets.try &.to_i? || read_int
   end
 end
 
