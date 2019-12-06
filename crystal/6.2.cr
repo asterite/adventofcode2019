@@ -21,14 +21,11 @@ objects = Hash(String, SpaceObject).new do |hash, name|
   hash[name] = SpaceObject.new(name)
 end
 
-File
-  .read("#{__DIR__}/../inputs/6.txt")
-  .lines
-  .each do |line|
-    left, _, right = line.partition(')')
-    objects[right].connect_to(objects[left])
-    objects[left].connect_to(objects[right])
-  end
+File.each_line("#{__DIR__}/../inputs/6.txt") do |line|
+  left, _, right = line.partition(')')
+  objects[right].connect_to(objects[left])
+  objects[left].connect_to(objects[right])
+end
 
 objects["YOU"].flood_fill
 puts objects["SAN"].distance - 2

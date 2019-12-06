@@ -18,12 +18,9 @@ objects = Hash(String, SpaceObject).new do |hash, name|
   hash[name] = SpaceObject.new(name)
 end
 
-File
-  .read("#{__DIR__}/../inputs/6.txt")
-  .lines
-  .each do |line|
-    left, _, right = line.partition(')')
-    objects[right].add_left_object(objects[left])
-  end
+File.each_line("#{__DIR__}/../inputs/6.txt") do |line|
+  left, _, right = line.partition(')')
+  objects[right].add_left_object(objects[left])
+end
 
 puts objects.values.sum &.orbits_count
