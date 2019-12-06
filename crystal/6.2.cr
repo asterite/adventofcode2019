@@ -26,9 +26,8 @@ File
   .lines
   .each do |line|
     left, _, right = line.partition(')')
-    left_object, right_object = objects[right], objects[left]
-    left_object.connect_to(right_object)
-    right_object.connect_to(left_object)
+    objects[right].connect_to(objects[left])
+    objects[left].connect_to(objects[right])
   end
 
 objects["YOU"].flood_fill
