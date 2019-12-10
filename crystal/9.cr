@@ -11,7 +11,6 @@ class Intcode
   end
 
   def run
-    cycles = 0
     while true
       @opcode = read
       case @opcode % 100
