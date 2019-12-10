@@ -1,21 +1,16 @@
 class Intcode
   getter? finished = false
 
-  # This is where we get inputs from
-  getter input_channel = Channel(Int32).new
-
-  # This is the next machine that will receive any
-  # output, unless it has "finished?"
-  property! next_machine : Intcode
-
-  # This is where we send the output, but only if the
-  # next machines "finished?" executing code
-  property! output_channel : Channel(Int32)
-
   def initialize(@data : Array(Int32))
     @ip = 0
     @opcode = 0
     @output_value = 0
+  end
+
+  def on_input(&@on_input : -> Int32)
+  end
+
+  def on_output(&@on_output : Int32 ->)
   end
 
   def run
@@ -45,12 +40,6 @@ class Intcode
         raise "Unexpected opcode: #{@opcode}"
       end
     end
-
-    if next_machine.finished?
-      output_channel.send @output_value
-    end
-
-    @output_value
   end
 
   private def add
@@ -62,15 +51,12 @@ class Intcode
   end
 
   private def input
-    @data[read] = input_channel.receive
+    @data[read] = @on_input.not_nil!.call
   end
 
   private def output
     @output_value = param(0)
-
-    unless next_machine.finished?
-      next_machine.input_channel.send @output_value
-    end
+    @on_output.not_nil!.call @output_value
   end
 
   private def jump_if_true
@@ -127,24 +113,39 @@ code = File
 max = (5..9).to_a.each_permutation(reuse: true).max_of do |settings|
   machines = Array.new(5) { |i| Intcode.new(code.dup) }
 
-  # We connect each machine's output to the next machine
-  machines.each_with_index do |machine, i|
-    machine.next_machine = machines[(i + 1) % 5]
-  end
+  # These are the channels where each machine will receive input in
+  channels = Array.new(5) { Channel(Int32).new }
 
-  # Here we'll receive the output of the last machine
-  # once machine 0 has finished executing
-  result_channel =
-    machines[4].output_channel =
-      Channel(Int32).new
+  # This is the channel that we'll use for the final result,
+  # once all machines are finished
+  result_channel = Channel(Int32).new
+
+  # We configure the input and output of each machine
+  5.times do |i|
+    # Input is just each channel's input
+    machines[i].on_input do
+      channels[i].receive
+    end
+
+    # Output is the next machine's output unless it has
+    # finished, in which case we sent the value to the result
+    machines[i].on_output do |value|
+      next_index = (i + 1) % 5
+      if machines[next_index].finished?
+        result_channel.send(value)
+      else
+        channels[next_index].send(value)
+      end
+    end
+  end
 
   # Here we feed each of the machine's input channels.
   # We must do it in separate fibers because `send` is
   # a blocking operation.
   5.times do |i|
     spawn do
-      machines[i].input_channel.send settings[i]
-      machines[i].input_channel.send 0 if i == 0
+      channels[i].send settings[i]
+      channels[i].send 0 if i == 0
     end
   end
 
