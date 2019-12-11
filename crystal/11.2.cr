@@ -1,7 +1,10 @@
 require "./intcode"
 
-BLACK      = 0
-WHITE      = 1
+enum Color
+  Black = 0
+  White = 1
+end
+
 DIRECTIONS = [
   {0, -1},
   {1, 0},
@@ -12,7 +15,6 @@ TURN_LEFT  = 0
 TURN_RIGHT = 1
 
 alias Position = {Int32, Int32}
-alias Color = Int32
 
 data = File
   .read("#{__DIR__}/../inputs/11.txt")
@@ -20,8 +22,8 @@ data = File
   .map(&.to_i64)
 
 pos = {0, 0}
-map = Hash(Position, Color).new(BLACK)
-map[{0, 0}] = WHITE
+map = Hash(Position, Color).new(:black)
+map[{0, 0}] = :white
 direction_index = 0 # up
 
 intcode = Intcode.new(data)
@@ -32,7 +34,7 @@ end
 first_output = true
 intcode.on_output do |value|
   if first_output
-    map[pos] = value.to_i32
+    map[pos] = Color.new(value.to_i32)
   else
     direction_index +=
       case value
@@ -55,12 +57,10 @@ min_y, max_y = keys.map(&.[1]).minmax
 (min_y..max_y).each do |y|
   (min_x..max_x).each do |x|
     case color = map[{x, y}]
-    when 0
+    when .black?
       print ' '
-    when 1
+    when .white?
       print '#'
-    else
-      raise "expected 0 or 1 as a color. not #{color}"
     end
   end
   puts
