@@ -8,6 +8,14 @@ class Intcode
     @ip = 0_i64
     @opcode = 0_i64
     @relative_base = 0_i64
+    @on_input = ->read_int
+    @on_output = ->(value : Int64) { puts value }
+  end
+
+  def on_input(&@on_input : -> Int64)
+  end
+
+  def on_output(&@on_output : Int64 ->)
   end
 
   def run
@@ -38,11 +46,11 @@ class Intcode
   end
 
   private def input
-    @data[write_param_mode(0)] = read_int
+    @data[write_param_mode(0)] = @on_input.call
   end
 
   private def output
-    puts param(0)
+    @on_output.call param(0)
   end
 
   private def jump_if_true
