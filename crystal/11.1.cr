@@ -20,7 +20,7 @@ data = File
   .map(&.to_i64)
 
 pos = {0, 0}
-map = Hash({Int32, Int32}, Color).new(BLACK)
+map = Hash(Position, Color).new(BLACK)
 direction_index = 0 # up
 
 intcode = Intcode.new(data)
