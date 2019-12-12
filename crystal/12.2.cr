@@ -29,7 +29,7 @@ all_steps = [0, 1, 2].map do |i|
   initial_state = moons.map &.state
 
   (1_u64...UInt64::MAX).find do
-    moons.each_combination(2, reuse: true) do |(moon1, moon2)|
+    moons.each_combination(2) do |(moon1, moon2)|
       moon1.compute_gravity(moon2)
       moon2.compute_gravity(moon1)
     end
