@@ -25,7 +25,7 @@ moon_data = File
   end
 
 all_steps = [0, 1, 2].map do |i|
-  moons = moon_data.map { |tuple| Moon.new(tuple[i]) }
+  moons = moon_data.map { |coordinates| Moon.new(coordinates[i]) }
   initial_state = moons.map &.state
 
   (1_u64...UInt64::MAX).find do
