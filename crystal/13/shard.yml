@@ -1,0 +1,13 @@
+name: adventofcode2019_13
+version: 1.0.0
+
+authors:
+  - Ary Borenszweig <asterite@gmail.com>
+
+dependencies:
+  sdl:
+    github: ysbaddaden/sdl.cr
+
+crystal: 0.32.0
+
+license: MIT

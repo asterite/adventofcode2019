@@ -1,4 +1,12 @@
 class Intcode
+  def self.from_file(filename)
+    new(parse(File.read(filename)))
+  end
+
+  def self.parse(data)
+    data.split(',').map(&.to_i64)
+  end
+
   def initialize(initial_data : Array(Int64))
     @data = Hash(Int64, Int64).new(0)
     initial_data.each_with_index do |value, index|
