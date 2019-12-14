@@ -2,17 +2,21 @@
 # 7 A, 1 E => 1 FUEL
 record Reaction,
   inputs : Array(ChemicalQuantity),
-  output : ChemicalQuantity
+  output : ChemicalQuantity do
+  def self.parse(line)
+    inputs, output = line.split(" => ")
+    output = ChemicalQuantity.parse(output)
+    inputs = inputs.split(", ").map { |input| ChemicalQuantity.parse(input) }
+    new(inputs, output)
+  end
+end
 
 # This is each chemical quantity in a reaction
-class ChemicalQuantity
-  getter name, quantity
-
-  def initialize(@name : String, @quantity : Int32)
-  end
-
-  def self.parse(line)
-    quantity, name = line.split
+record ChemicalQuantity,
+  name : String,
+  quantity : Int32 do
+  def self.parse(text)
+    quantity, name = text.split
     new(name, quantity.to_i)
   end
 end
@@ -42,10 +46,8 @@ class Chemical
   # the outputs' priority will be one more that this
   # chemical's priority. If it had a previous priority,
   # the bigger one wins.
-  def compute_priority(priority)
-    if priority > @priority
-      @priority = priority
-    end
+  def compute_priority(priority = 0)
+    @priority = priority if priority > @priority
     outputs.each &.compute_priority(@priority + 1)
   end
 end
@@ -54,10 +56,7 @@ end
 reactions = File
   .read_lines("#{__DIR__}/../inputs/14.txt")
   .map do |line|
-    inputs, output = line.split(" => ")
-    output = ChemicalQuantity.parse(output)
-    inputs = inputs.split(", ").map { |input| ChemicalQuantity.parse(input) }
-    Reaction.new(inputs, output)
+    Reaction.parse(line)
   end
 
 # Store all different chemicals by name
@@ -75,8 +74,8 @@ end
 # Get just the Chemicals from the hash
 chemicals = chemicals_by_name.values
 
-# Compute the priority of each element, starting from 0
-chemicals.each &.compute_priority(0)
+# Compute the priority starting from ORE
+chemicals_by_name["ORE"].compute_priority
 
 # Sort by priority, so FUEL will be first and ORE will be last
 chemicals.sort_by! { |chemical| -chemical.priority }
@@ -102,4 +101,5 @@ chemicals.each do |chemical|
   end
 end
 
+# At the end we should have the ORE that we need
 puts chemicals_by_name["ORE"].quantity
