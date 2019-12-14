@@ -17,8 +17,8 @@ class Screen
   WHITE = {255, 255, 255, 0}
   RED   = {255, 0, 0, 0}
 
-  SCALING_X = 30
-  SCALING_Y = 24
+  SCALING_X = 10
+  SCALING_Y = 20
 
   @pitch : Int32
   @screen_width : Int32
@@ -102,32 +102,30 @@ intcode.on_input do
     end
   end
 
-  key = nil
-
-  until key
-    SDL::Event.poll do |event|
+  SDL::Event.poll do |event|
+    case event
+    when SDL::Event::Quit
+      exit
+    when SDL::Event::Keyboard
       case event
-      when SDL::Event::Quit
-        exit
-      when SDL::Event::Keyboard
-        case event
-        when .keydown?
-          case event.sym
-          when .escape?, .q?
-            exit
-          when .left?
-            key = -1_i64
-          when .right?
-            key = 1_i64
-          when .down?
-            key = 0_i64
-          end
+      when .keydown?
+        case event.sym
+        when .escape?, .q?
+          exit
         end
       end
     end
   end
 
-  key
+  ball_x = map.find { |xy, tile| tile.ball? }.not_nil![0][0]
+  paddle_x = map.find { |xy, tile| tile.paddle? }.not_nil![0][0]
+  if paddle_x == ball_x
+    0_i64
+  elsif paddle_x < ball_x
+    1_i64
+  else
+    -1_i64
+  end
 end
 
 score = 0_i64
@@ -141,7 +139,7 @@ intcode.on_output do |value|
 
     if x == -1 && y == 0
       score = tile_id
-      puts score
+      puts "Score: #{score}"
     else
       map[{x, y}] = Tile.new(tile_id.to_i)
     end
