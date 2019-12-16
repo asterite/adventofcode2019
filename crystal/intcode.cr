@@ -144,24 +144,21 @@ class Intcode(T)
   end
 
   private def read_data(index)
-    if index < @data.size
+    ensure_enough_memory(index) do
       @data[index]
-    else
-      while index >= @data.size
-        @data << T.zero
-      end
-      T.zero
     end
   end
 
   private def write_data(index, value)
-    if index < @data.size
-      @data[index] = value
-    else
-      while index >= @data.size
-        @data << T.zero
-      end
+    ensure_enough_memory(index) do
       @data[index] = value
     end
+  end
+
+  private def ensure_enough_memory(index)
+    while index >= @data.size
+      @data << T.zero
+    end
+    yield
   end
 end
