@@ -79,9 +79,9 @@ class Screen
   end
 end
 
-map = Hash({Int64, Int64}, Tile).new(:empty)
+map = Hash({Int32, Int32}, Tile).new(:empty)
 
-data = Intcode.parse(File.read("#{__DIR__}/../../../inputs/13.txt"))
+data = Intcode(Int32).parse(File.read("#{__DIR__}/../../../inputs/13.txt"))
 data[0] = 2
 cached_screen = nil
 
@@ -120,17 +120,17 @@ intcode.on_input do
   ball_x = map.find { |xy, tile| tile.ball? }.not_nil![0][0]
   paddle_x = map.find { |xy, tile| tile.paddle? }.not_nil![0][0]
   if paddle_x == ball_x
-    0_i64
+    0
   elsif paddle_x < ball_x
-    1_i64
+    1
   else
-    -1_i64
+    -1
   end
 end
 
-score = 0_i64
+score = 0
 
-outputs = [] of Int64
+outputs = [] of Int32
 intcode.on_output do |value|
   outputs << value
   if outputs.size == 3

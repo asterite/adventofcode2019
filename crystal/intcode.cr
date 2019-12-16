@@ -1,33 +1,39 @@
-class Intcode
+class Intcode(T)
   def self.from_file(filename)
     new(parse(File.read(filename)))
   end
 
   def self.parse(data)
-    data.split(',').map(&.to_i64)
+    data.split(',').map { |n| T.new(n) }
   end
 
-  def initialize(initial_data : Array(Int64))
-    @data = Hash(Int64, Int64).new(0)
-    initial_data.each_with_index do |value, index|
-      @data[index.to_i64] = value.to_i64
-    end
+  @data : Array(T)
+  @ip : T
+  @opcode : T
+  @relative_base : T
+  @stop = false
 
-    @ip = 0_i64
-    @opcode = 0_i64
-    @relative_base = 0_i64
+  def initialize(initial_data : Array(T))
+    @data = initial_data.dup
+    @ip = T.zero
+    @opcode = T.zero
+    @relative_base = T.zero
     @on_input = ->read_int
-    @on_output = ->(value : Int64) { puts value }
+    @on_output = ->(value : T) { puts value }
   end
 
-  def on_input(&@on_input : -> Int64)
+  def on_input(&@on_input : -> T)
   end
 
-  def on_output(&@on_output : Int64 ->)
+  def on_output(&@on_output : T ->)
+  end
+
+  def stop
+    @stop = true
   end
 
   def run
-    while true
+    until @stop
       @opcode = read
       case @opcode % 100
       when  1 then add
@@ -54,7 +60,7 @@ class Intcode
   end
 
   private def input
-    @data[write_param_mode(0)] = @on_input.call
+    write_data write_param_mode(0), @on_input.call
   end
 
   private def output
@@ -76,11 +82,11 @@ class Intcode
   end
 
   private def less_than
-    binary { |x, y| x < y ? 1_i64 : 0_i64 }
+    binary { |x, y| x < y ? T.new(1) : T.zero }
   end
 
   private def equals
-    binary { |x, y| x == y ? 1_i64 : 0_i64 }
+    binary { |x, y| x == y ? T.new(1) : T.zero }
   end
 
   private def adjust_relative_base
@@ -90,18 +96,18 @@ class Intcode
   private def binary
     input1 = param(0)
     input2 = param(1)
-    @data[write_param_mode(2)] = yield input1, input2
+    write_data write_param_mode(2), (yield input1, input2)
   end
 
-  private record Address, address : Int64
-  private record Immediate, value : Int64
+  private record Address(T), address : T
+  private record Immediate(T), value : T
 
   private def param(pos)
     mode = param_mode(pos)
     if mode.is_a?(Immediate)
       mode.value
     else
-      @data[mode.address]
+      read_data mode.address
     end
   end
 
@@ -118,22 +124,44 @@ class Intcode
     mode = (@opcode // (100 * 10**pos)) % 10
     case mode
     when 0 # position mode
-      Address.new(value)
+      Address(T).new(value)
     when 1 # immediate mode
-      Immediate.new(value)
+      Immediate(T).new(value)
     when 2
-      Address.new(@relative_base + value)
+      Address(T).new(@relative_base + value)
     else
       raise "Unknown mode #{mode} resulting from opcode #{@opcode}, param at pos #{pos}"
     end
   end
 
   private def read
-    @data[@ip].tap { @ip += 1 }
+    read_data(@ip).tap { @ip += 1 }
   end
 
   private def read_int
     print "Enter an integer: "
-    gets.try &.to_i64? || read_int
+    gets.try { |value| T.new(value.to_i64) } || read_int
+  end
+
+  private def read_data(index)
+    if index < @data.size
+      @data[index]
+    else
+      while index >= @data.size
+        @data << T.zero
+      end
+      T.zero
+    end
+  end
+
+  private def write_data(index, value)
+    if index < @data.size
+      @data[index] = value
+    else
+      while index >= @data.size
+        @data << T.zero
+      end
+      @data[index] = value
+    end
   end
 end

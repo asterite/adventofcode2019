@@ -1,10 +1,10 @@
 require "../../intcode"
 
-map = {} of {Int64, Int64} => Int64
+map = {} of {Int32, Int32} => Int32
 
-intcode = Intcode.from_file("#{__DIR__}/../../../inputs/13.txt")
+intcode = Intcode(Int32).from_file("#{__DIR__}/../../../inputs/13.txt")
 
-outputs = [] of Int64
+outputs = [] of Int32
 intcode.on_output do |value|
   outputs << value
   if outputs.size == 3
