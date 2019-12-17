@@ -42,7 +42,7 @@ def find_chunk_sequence(pieces)
   (1..pieces.size - 2).each do |sizeA|
     (1..(pieces.size - sizeA - 1)).each do |sizeB|
       (1..(pieces.size - sizeA - sizeB)).each do |sizeC|
-        output = ['A']
+        main = ['A']
         chunkA = pieces[0, sizeA]
         chunkB = nil
         chunkC = nil
@@ -50,25 +50,25 @@ def find_chunk_sequence(pieces)
         match = true
         while start < pieces.size
           if pieces[start, sizeA] == chunkA
-            output << 'A'
+            main << 'A'
             start += sizeA
           elsif chunkB && pieces[start, sizeB] == chunkB
-            output << 'B'
+            main << 'B'
             start += sizeB
           elsif !chunkB && start + sizeB <= pieces.size &&
                 (tempChunkB = pieces[start, sizeB]) &&
                 chunk_length(tempChunkB) <= 20
             chunkB = tempChunkB
-            output << 'B'
+            main << 'B'
             start += sizeB
           elsif chunkC && pieces[start, sizeC] == chunkC
-            output << 'C'
+            main << 'C'
             start += sizeC
           elsif !chunkC && start + sizeC <= pieces.size &&
                 (tempChunkC = pieces[start, sizeC]) &&
                 chunk_length(tempChunkC) <= 20
             chunkC = tempChunkC
-            output << 'C'
+            main << 'C'
             start += sizeC
           else
             match = false
@@ -77,7 +77,7 @@ def find_chunk_sequence(pieces)
         end
 
         if match && chunkA && chunkB && chunkC
-          return output, chunkA, chunkB, chunkC
+          return main, chunkA, chunkB, chunkC
         end
       end
     end
