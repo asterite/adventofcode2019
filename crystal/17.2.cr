@@ -223,4 +223,4 @@ intcode.on_input do
 end
 intcode.run
 
-print last
+puts last
