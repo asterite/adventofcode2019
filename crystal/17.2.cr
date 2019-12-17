@@ -219,9 +219,7 @@ intcode.on_output do |value|
   print chr if chr
 end
 intcode.on_input do
-  v = inputs.shift
-  puts "Sending: #{v}"
-  v
+  inputs.shift
 end
 intcode.run
 
