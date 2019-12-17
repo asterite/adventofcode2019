@@ -3,6 +3,12 @@ class Intcode(T)
     new(parse(File.read(filename)))
   end
 
+  def self.from_file(filename, &)
+    data = parse(File.read(filename))
+    yield data
+    new(data)
+  end
+
   def self.parse(data)
     data.split(',').map { |n| T.new(n) }
   end
